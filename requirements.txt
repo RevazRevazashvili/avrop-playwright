@@ -1,0 +1,4 @@
+playwright
+lxml
+psycopg2
+bs4
