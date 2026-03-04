@@ -43,12 +43,15 @@ non_html_extensions = (
         ".pptx"
     )
 
-def setup_db_upload_data(db_name: str, table_name: str, data: list[dict]) -> bool | None:
+def setup_db_upload_data(db_name: str, table_name: str, table_fields: list[list[str, str]], data: list[dict]) -> bool | None:
     try:
         db = DatabaseOperations()
         db.create_database(db_name)
         db.connect_to_database(db_name)
-        db.create_table(table_name)
+        db.create_custom_table(
+            table_name,
+            table_fields
+        )
         db.insert_many_data(table_name, data)
         db.close()
         return True
@@ -190,5 +193,6 @@ if __name__ == "__main__":
     if setup_db_upload_data(
             get_configs("naming").get("database_name"),
             get_configs("naming").get("gsr_table"),
+            get_configs("gsr_table_fields"),
             results_data):
         main_logger.info("all data scraped and uploaded to the database")
