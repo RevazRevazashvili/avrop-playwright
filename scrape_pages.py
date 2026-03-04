@@ -3,13 +3,15 @@ import playwright
 from bs4 import BeautifulSoup
 from my_utilities import get_configs, setup_logging, retry
 from db_operations import DatabaseOperations
+import datetime
 
 main_logger = setup_logging()
+
+main_logger.info(datetime.datetime.now())
 
 config_data = get_configs("page_config")
 
 def setup_db_upload_data(db_name: str, table_name: str, data: list[dict]) -> bool | None:
-    db = None
     try:
         db = DatabaseOperations()
         db.create_database(db_name)
@@ -21,8 +23,6 @@ def setup_db_upload_data(db_name: str, table_name: str, data: list[dict]) -> boo
     except Exception as e:
         print(f"error occurred in database operations: {e}")
         return False
-    finally:
-        db.close()
 
 @retry(3)
 def fill_cpv_field(arg_page: playwright, cpv_number: str) -> None:
@@ -234,6 +234,7 @@ def scrape_notice(info: tuple) -> dict:
     soup = BeautifulSoup(html, "lxml")
 
     data_to_return = extract_notice_data(soup, info)
+    main_logger.info(info[0])
     return data_to_return
 
 if __name__ == "__main__":

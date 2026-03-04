@@ -1,0 +1,12 @@
+2026-02-16 22:38:42,191 - my_utilities - ERROR - error occurred while paginating: Page.wait_for_selector: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator("//a[text()='11']") to be visible
+
+2026-02-16 23:03:34,911 - my_utilities - INFO - <method 'date' of 'datetime.datetime' objects>
+2026-02-16 23:03:55,636 - my_utilities - INFO - 2026-02-16 23:03:55.636501
+2026-02-16 23:04:12,666 - my_utilities - INFO - 2026-02-16 23:04:12.666030
+2026-02-17 10:32:20,276 - my_utilities - INFO - 2026-02-17 10:32:20.276492
+2026-02-17 10:33:04,476 - my_utilities - ERROR - error occurred while paginating: Page.wait_for_selector: Timeout 5000ms exceeded.
+Call log:
+  - waiting for locator("//a[text()='11']") to be visible
+

@@ -86,6 +86,39 @@ class DatabaseOperations:
             return False
 
     # -----------------------------------------------------
+    # CUSTOM TABLE
+    # -----------------------------------------------------
+
+    def create_custom_table(self, tb_name: str, fields: list[tuple[str, str]]) -> bool:
+        try:
+            # Build column definitions safely
+            columns = [
+                sql.SQL("{} {}").format(
+                    sql.Identifier(field_name),
+                    sql.SQL(field_type)
+                )
+                for field_name, field_type in fields
+            ]
+
+            query = sql.SQL("""
+                CREATE TABLE IF NOT EXISTS {} (
+                    {}
+                );
+            """).format(
+                sql.Identifier(tb_name),
+                sql.SQL(", ").join(columns)
+            )
+
+            self.cursor.execute(query)
+            self.connection.commit()
+            return True
+
+        except Exception as e:
+            print(f"Error while creating table: {e}")
+            self.connection.rollback()
+            return False
+
+    # -----------------------------------------------------
     # INSERT ONE
     # -----------------------------------------------------
 

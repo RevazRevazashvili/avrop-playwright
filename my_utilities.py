@@ -2,6 +2,7 @@ import json
 import logging
 from logging.handlers import RotatingFileHandler
 from functools import wraps
+from urllib.parse import urlparse
 
 def retry(retry_num: int):
     def decorator(func):
@@ -49,3 +50,19 @@ def setup_logging():
     logger.addHandler(file_handler)
     logger.addHandler(console_handler)
     return logger
+
+
+def get_domain(url: str) -> str:
+    parsed = urlparse(url)
+    domain = parsed.netloc
+
+    # handle URLs without scheme (e.g. "example.com/path")
+    if not domain:
+        parsed = urlparse("http://" + url)
+        domain = parsed.netloc
+
+    # remove leading "www."
+    if domain.startswith("www."):
+        domain = domain[4:]
+
+    return domain
