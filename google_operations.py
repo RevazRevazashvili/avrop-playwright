@@ -146,43 +146,55 @@ def scrape_urls():
         page = context.new_page()
 
         for row in results:
-            url = row.get("url")
-            if not url:
-                continue
+            try:
+                url = row.get("url")
+                if not url:
+                    continue
 
-            domain = get_domain(url)
+                domain = get_domain(url)
 
-            if (
-                domain.endswith(sweden_domain_extensions)
-                and not any(social in url.lower() for social in social_platform_names)
-                and not url.lower().endswith(non_html_extensions)
-                and domain not in seen_urls
-            ):
-                seen_urls.add(domain)
-                page.goto(url, wait_until="load")
+                if (
+                    domain.endswith(sweden_domain_extensions)
+                    and not any(social in url.lower() for social in social_platform_names)
+                    and not url.lower().endswith(non_html_extensions)
+                    and domain not in seen_urls
+                ):
+                    seen_urls.add(domain)
+                    page.goto(url, wait_until="load")
 
-                try:
-                    possible_email = page.wait_for_selector(
-                        "main a[href^='mailto']"
-                    ).get_attribute("href")
-                except:
-                    possible_email = None
+                    try:
+                        possible_email = page.wait_for_selector(
+                            "main a[href^='mailto']"
+                        ).get_attribute("href")
+                    except:
+                        possible_email = None
 
-                try:
-                    possible_phone = page.wait_for_selector(
-                        "main a[href^='tel']"
-                    ).get_attribute("href")
-                except:
-                    possible_phone = None
+                    try:
+                        possible_phone = page.wait_for_selector(
+                            "main a[href^='tel']"
+                        ).get_attribute("href")
+                    except:
+                        possible_phone = None
 
+                    all_information.append({
+                        "url": url,
+                        "title": row.get("title"),
+                        "snippet": row.get("snippet"),
+                        "possible_email": possible_email,
+                        "possible_phone": possible_phone,
+                        "all_text_content": page.inner_text("body")
+                    })
+            except Exception as e:
+                main_logger.error(f"error occurred for url: {url}\n{e}")
                 all_information.append({
                     "url": url,
                     "title": row.get("title"),
                     "snippet": row.get("snippet"),
-                    "possible_email": possible_email,
-                    "possible_phone": possible_phone,
-                    "all_text_content": page.inner_text("body")
+                    "possible_email": None,
+                    "possible_phone": None,
+                    "all_text_content": None
                 })
+                continue
 
         browser.close()
 
@@ -190,9 +202,12 @@ def scrape_urls():
 
 if __name__ == "__main__":
     results_data = scrape_urls()
-    if setup_db_upload_data(
-            get_configs("naming").get("database_name"),
-            get_configs("naming").get("gsr_table"),
-            get_configs("gsr_table_fields"),
-            results_data):
-        main_logger.info("all data scraped and uploaded to the database")
+    try:
+        if setup_db_upload_data(
+                get_configs("naming").get("database_name"),
+                get_configs("naming").get("gsr_table"),
+                get_configs("gsr_table_fields"),
+                results_data):
+            main_logger.info("all data scraped and uploaded to the database")
+    except Exception as e:
+        main_logger.error(f"occurred an error: {e}")
